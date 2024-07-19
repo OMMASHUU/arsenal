@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR Web App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+    }
+    button {
+      margin-top: 20px;
+    }
+    pre {
+      text-align: left;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OCR Web App</h1>
+    <input type="file" id="imageInput" accept="image/*">
+    <img id="preview" src="" alt="Image Preview">
+    <button id="recognizeButton">Recognize Text</button>
+    <pre id="result"></pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <script>
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('recognizeButton').addEventListener('click', function() {
+      const image = document.getElementById('preview').src;
+      if (!image) {
+        alert('Please choose an image first.');
+        return;
+      }
+
+      Tesseract.recognize(
+        image,
+        'eng',
+        {
+          logger: function(m) {
+            console.log(m);
+          }
+        }
+      ).then(function({ data: { text } }) {
+        document.getElementById('result').textContent = text;
+      }).catch(function(err) {
+        console.error(err);
+        alert('OCR failed.');
+      });
+    });
+  </script>
+</body>
+</html>
